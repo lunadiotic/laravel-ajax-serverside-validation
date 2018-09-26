@@ -75,6 +75,8 @@
 
     @yield('content')
 
+    @include('layouts._modal')
+
     </div> <!-- /container -->
 
 
