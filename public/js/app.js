@@ -18,3 +18,42 @@ $('body').on('click', '.modal-show', function (event) {
 
     $('#modal').modal('show'); //menampilkan modal dari id "modal"
 });
+
+
+$('#modal-btn-save').click(function (event) {
+    event.preventDefault();
+
+    var form    = $('#modal-body form'), //seleksi element form yang ada di dalam id #modal-body
+        url     = form.attr('action'), //mengambil url yang ada pada atribut action di dalam form yang dipilih
+        method  = $('input[name=_method]').val() == undefined ? 'POST' : 'PUT'; //menentukan HTTP method dengan memeriksa apakah terdapat nilai pada atribut _method atau tidak
+
+    form.find('.help-block').remove(); //menghapus element HTML yang memiliki class "help-block"
+    form.find('.form-group').removeClass('has-error'); //menghapus class "has-error" yang bersamaan dengan class "form-group"
+
+    $.ajax({
+        url     : url,
+        method  : method,
+        data    : form.serialize(), //mengambil seluruh data dari form dengan format url-encode
+        success : function (response) {
+            form.trigger('reset'); //Hapus inputan pada form
+            $('#modal').modal('hide'); //Hide modal
+            $('#datatable').DataTable().ajax.reload(); //melakukan reload pada datatables dengan id "datatable"
+            swal({
+                type    : 'success',
+                title   : 'Success!',
+                text    : 'Data has been saved!',
+            }); //show flash message
+        },
+        error   : function (xhr) {
+            var errors = xhr.responseJSON; //simpan response xhr di variabel errors
+            if ($.isEmptyObject(errors) == false) { //Jika objek errors ini bukan kosong maka lakukan perulangan
+                $.each(errors, function(key, value) { //lakukan perulangan dari setiap error, dan kita letakkan pada element form tertentu
+                    $('#' + key) //pilih element form dengan ID yang sudah dibuat, SARAN: SAMAKAN DENGAN NAMA TABEL SERVER AGAR MUDAH UNTUK MENAMPILKAN VALIDASI PER KOLOM
+                        .closest('.form-group') //cari class terdekat yang memiliki class "form-group"
+                        .addClass('has-error') //tambahkan class "has-error" pada class tersebut yang sama dengan form-group
+                        .append('<span class="help-block"><strong>' + value + '</strong></span>') //menambahkan element span yang berisikan pesan error yang dihasilkan dari server side
+                });
+            }
+        }
+    });
+});
