@@ -6,7 +6,8 @@ $('body').on('click', '.modal-show', function (event) {
         title = me.attr('title'); //mendapatkan title dari atribut "title"
 
     $('#modal-title').text(title); //mengubah judul modal dari nilai title
-    $('#modal-btn-save').text(me.hasClass('edit') ? 'Update' : 'Create'); //mengubah text button save
+    $('#modal-btn-save').removeClass('hide') //menghapus class hide jika ada karena show
+    .text(me.hasClass('edit') ? 'Update' : 'Create'); //mengubah text button save
 
     $.ajax({
         url: url, //memberikan nilai url ajax dari variabel url di atas
@@ -101,4 +102,25 @@ $('body').on('click', '.btn-delete', function (event) {
                 });
             }
         });
-})
+});
+
+$('body').on('click', '.btn-show', function (event) {
+    event.preventDefault(); //Mencegah event default dari element
+
+    var me = $(this), 
+        url = me.attr('href'), 
+        title = me.attr('title');
+
+    $('#modal-title').text(title); //mengubah judul modal dari nilai title
+    $('#modal-btn-save').addClass('hide'); //menyembunyikan tombol save
+
+    $.ajax({
+        url: url, //memberikan nilai url ajax dari variabel url di atas
+        dataType: 'html', //menentukan tipe data yang akan dimunculkan dalam ajax
+        success: function (response) {
+            $('#modal-body').html(response); //menampilkan respon dengan tipe data HTML ke dalam bagian id "modal-body"
+        }
+    });
+
+    $('#modal').modal('show'); //menampilkan modal dari id "modal"
+});
